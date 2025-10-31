@@ -91,8 +91,17 @@ Processed data will be saved in the `output` folder.
 
 ## Docker run from build local
 
+### Build the image
+
 ```bash
 docker build -t wizledger .
+```
+
+### Run the container
+
+**Linux/MacOS:**
+
+```bash
 docker run -d -p 7860:7860 \
     -e OPENROUTER_MODEL="anthropic/claude-4.5-sonnet" \
     -e OPENROUTER_API_URL="https://openrouter.ai/api/v1" \
@@ -100,9 +109,25 @@ docker run -d -p 7860:7860 \
     wizledger
 ```
 
+**Windows (PowerShell):**
+
+```powershell
+docker run -d -p 7860:7860 `
+    -e OPENROUTER_MODEL="anthropic/claude-4.5-sonnet" `
+    -e OPENROUTER_API_URL="https://openrouter.ai/api/v1" `
+    -e OPENROUTER_API_KEY="<replace with your openrouter api key>" `
+    wizledger
+```
+
+**Windows (Command Prompt):**
+
+```cmd
+docker run -d -p 7860:7860 -e OPENROUTER_MODEL="anthropic/claude-4.5-sonnet" -e OPENROUTER_API_URL="https://openrouter.ai/api/v1" -e OPENROUTER_API_KEY="<replace with your openrouter api key>" wizledger
+```
+
 ## Docker run from huggingface
 
-1. Run the following command:
+**Linux/MacOS:**
 
 ```bash
 docker run -it -p 7860:7860 --platform=linux/amd64 \
@@ -110,6 +135,50 @@ docker run -it -p 7860:7860 --platform=linux/amd64 \
 	-e OPENROUTER_API_URL="https://openrouter.ai/api/v1" \
 	-e OPENROUTER_API_KEY="<replace with your openrouter api key>" \
 	registry.hf.space/chinkanai-wizledger:latest python src/ui.py
+```
+
+**Windows (PowerShell):**
+
+```powershell
+docker run -it -p 7860:7860 --platform=linux/amd64 `
+	-e OPENROUTER_MODEL="anthropic/claude-4.5-sonnet" `
+	-e OPENROUTER_API_URL="https://openrouter.ai/api/v1" `
+	-e OPENROUTER_API_KEY="<replace with your openrouter api key>" `
+	registry.hf.space/chinkanai-wizledger:latest python src/ui.py
+```
+
+**Windows (Command Prompt):**
+
+```cmd
+docker run -it -p 7860:7860 --platform=linux/amd64 -e OPENROUTER_MODEL="anthropic/claude-4.5-sonnet" -e OPENROUTER_API_URL="https://openrouter.ai/api/v1" -e OPENROUTER_API_KEY="<replace with your openrouter api key>" registry.hf.space/chinkanai-wizledger:latest python src/ui.py
+```
+
+## Docker run from GitHub Container Registry
+
+**Linux/MacOS:**
+
+```bash
+docker run -d -p 7860:7860 \
+	-e OPENROUTER_MODEL="anthropic/claude-4.5-sonnet" \
+	-e OPENROUTER_API_URL="https://openrouter.ai/api/v1" \
+	-e OPENROUTER_API_KEY="<replace with your openrouter api key>" \
+	ghcr.io/chinkan/wizledger-statement-processor:master
+```
+
+**Windows (PowerShell):**
+
+```powershell
+docker run -d -p 7860:7860 `
+	-e OPENROUTER_MODEL="anthropic/claude-4.5-sonnet" `
+	-e OPENROUTER_API_URL="https://openrouter.ai/api/v1" `
+	-e OPENROUTER_API_KEY="<replace with your openrouter api key>" `
+	ghcr.io/chinkan/wizledger-statement-processor:master
+```
+
+**Windows (Command Prompt):**
+
+```cmd
+docker run -d -p 7860:7860 -e OPENROUTER_MODEL="anthropic/claude-4.5-sonnet" -e OPENROUTER_API_URL="https://openrouter.ai/api/v1" -e OPENROUTER_API_KEY="<replace with your openrouter api key>" ghcr.io/chinkan/wizledger-statement-processor:master
 ```
 
 ## API

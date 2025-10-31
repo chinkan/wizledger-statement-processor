@@ -8,26 +8,49 @@ from langchain_core.output_parsers import PydanticOutputParser
 from models.transactions import Transactions
 
 def get_prompt_template() -> str:
-    return """Given the following list of transactions:
+    return """<task>
+You are a transaction management assistant. Your task is to interpret user input and update a list of financial transactions accordingly.
+</task>
 
+<current_transactions>
 {transactions}
+</current_transactions>
 
-And the user's input:
+<user_request>
+{user_input}
+</user_request>
 
-"{user_input}"
+<instructions>
+Based on the user's request, update the list of transactions by doing ONE of the following:
+- If the user wants to modify a specific transaction, update only that transaction
+- If the user wants to add a new transaction, add it to the list
+- If the user wants to delete a transaction, remove it from the list
 
-Please interpret the user's intention and provide the updated list of transactions. 
-- If the user wants to modify a specific transaction, update only that transaction.
-- If the user wants to add a new transaction, add it to the list.
-- If the user wants to delete a transaction, remove it from the list.
+Each transaction must have exactly these three properties:
+- date: The date in YYYY-MM-DD format (string)
+- description: A brief description of the transaction (string)
+- amount: The transaction amount as a number (negative for debits, positive for credits)
+</instructions>
 
-Each transaction should have the following properties:
-    - date: The date of the transaction in the format YYYY-MM-DD
-    - description: A brief description of the transaction
-    - amount: The transaction amount as a float (negative for debits, positive for credits)
+<output_format>
+Return a JSON array of transaction objects. Each object must have exactly the three properties listed above.
 
-Provide ONLY the updated list of transactions in the JSON format.
-Please return ONLY the list of JSON objects, without any additional explanation or text."""
+Example output format:
+[
+  {{
+    "date": "2024-01-15",
+    "description": "Grocery shopping",
+    "amount": -45.67
+  }},
+  {{
+    "date": "2024-01-16",
+    "description": "Salary deposit",
+    "amount": 2500.00
+  }}
+]
+
+Return ONLY the JSON array. Do not include any explanations, comments, or additional text.
+</output_format>"""
 
 def interpret_and_update(user_input: str, transactions: List[Dict[str, str]]) -> List[Dict[str, str]]:
     
@@ -46,6 +69,8 @@ def interpret_and_update(user_input: str, transactions: List[Dict[str, str]]) ->
         updated_transactions: Transactions = chain.invoke({"transactions": transactions, "user_input": user_input})
         return updated_transactions.model_dump()
     except Exception as e:
+        import traceback
+        print(traceback.format_exc())
         print(f"Unexpected error in interpret_and_update: {str(e)}")
         return transactions
     

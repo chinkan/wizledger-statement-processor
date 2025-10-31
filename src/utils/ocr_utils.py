@@ -42,6 +42,7 @@ def perform_ocr_pdf2image(file_path: str) -> str:
     
     return full_text.strip()
 
+# Perform OCR on a PDF file
 def perform_ocr_pdf(file_path: str) -> str:
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
@@ -49,39 +50,8 @@ def perform_ocr_pdf(file_path: str) -> str:
     if not file_path.lower().endswith('.pdf'):
         raise ValueError(f"File {file_path} is not a PDF format")
     
-    with open(file_path, "rb") as pdf_file:
-        content = pdf_file.read()
-    
-    # Set InputConfig
-    input_config = vision.InputConfig(
-        content=content,
-        mime_type="application/pdf"
-    )
+    from markitdown import MarkItDown
 
-    # Set Feature
-    feature = vision.Feature(
-        type_=vision.Feature.Type.DOCUMENT_TEXT_DETECTION
-    )
-
-    # Set Request
-    request = vision.AnnotateFileRequest(
-        input_config=input_config,
-        features=[feature]
-    )
-
-    # Execute request
-    response = get_google_vision_client().batch_annotate_files(requests=[request])
-
-    # Process response
-    full_text = ""
-    for res in response.responses[0].responses:
-        full_text += res.full_text_annotation.text + "\n\n"
-    
-    if response.responses[0].error.message:
-        raise Exception(
-            f'{response.responses[0].error.message}\n'
-            'For more information, please refer to: '
-            'https://cloud.google.com/apis/design/errors'
-        )
-    
-    return full_text.strip()
+    md = MarkItDown(enable_plugins=False) # Set to True to enable plugins
+    result = md.convert(file_path)
+    return result.text_content

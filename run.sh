@@ -17,15 +17,15 @@ echo "Checking for updates..."
 git pull
 
 # Check if virtual environment exists
-if [ ! -d "venv" ]; then
+if [ ! -d ".venv" ]; then
     echo "Creating virtual environment..."
-    python3 -m venv venv
+    python3 -m venv .venv
 else
     echo "Virtual environment already exists."
 fi
 
 # Activate virtual environment
-source venv/bin/activate
+source .venv/bin/activate
 
 # Check if requirements.txt exists
 if [ -f "requirements.txt" ]; then

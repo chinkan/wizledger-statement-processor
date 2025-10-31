@@ -8,6 +8,8 @@ from fastapi import FastAPI, File, UploadFile, Form, Request
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uuid
+from dotenv import load_dotenv
+load_dotenv()
 
 def output_transactions(transactions):
     output.value = json.dumps(transactions, indent=2)
@@ -16,30 +18,19 @@ def process_statement(statement, thread, human_input = None):
     result = process_file_from_ui(statement, thread, human_input)
     return pd.DataFrame(result)
 
-def process(statement, cloud_vision_api_key, openrouter_api_key, openrouter_model, openrouter_api_url):
+def process(statement, openrouter_api_key, openrouter_model, openrouter_api_url):
     statement_path = statement.name if hasattr(statement, 'name') else statement
     
-    # 檢查是否提供了 cloud_vision_api_key
-    if cloud_vision_api_key:
-        cloud_vision_api_key_path = cloud_vision_api_key.name if hasattr(cloud_vision_api_key, 'name') else cloud_vision_api_key
-        with open(cloud_vision_api_key_path, 'r') as key_file:
-            cloud_vision_api_key_content = key_file.read()
-        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.json') as temp_file:
-            temp_file.write(cloud_vision_api_key_content)
-            temp_file_path = temp_file.name
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = temp_file_path
-    
-    os.environ["OPENROUTER_API_KEY"] = openrouter_api_key
-    os.environ["OPENROUTER_MODEL"] = openrouter_model
-    os.environ["OPENROUTER_API_URL"] = openrouter_api_url
+    os.environ["OPENROUTER_API_KEY"] = openrouter_api_key if openrouter_api_key else os.getenv("OPENROUTER_API_KEY")
+    os.environ["OPENROUTER_MODEL"] = openrouter_model if openrouter_model else os.getenv("OPENROUTER_MODEL")
+    os.environ["OPENROUTER_API_URL"] = openrouter_api_url if openrouter_api_url else os.getenv("OPENROUTER_API_URL")
 
     thread = {"configurable": {"thread_id": str(uuid.uuid4())}}
 
     try:
         result = process_statement(statement_path, thread)
     finally:
-        if cloud_vision_api_key:
-            os.unlink(temp_file_path)
+        pass
 
     return result, thread["configurable"]["thread_id"]
 
@@ -67,7 +58,6 @@ app.add_middleware(
 @app.post("/process")
 async def api_process(
     statement: UploadFile = File(...),
-    cloud_vision_api_key: UploadFile = File(None),
     openrouter_api_key: str = Form(None),
     openrouter_model: str = Form(None),
     openrouter_api_url: str = Form(None)
@@ -75,12 +65,6 @@ async def api_process(
     with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_statement:
         temp_statement.write(await statement.read())
         temp_statement_path = temp_statement.name
-
-    if cloud_vision_api_key:
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.json') as temp_key:
-            temp_key.write(await cloud_vision_api_key.read())
-            temp_key_path = temp_key.name
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = temp_key_path
 
     try:
         os.environ["OPENROUTER_API_KEY"] = openrouter_api_key if openrouter_api_key else os.getenv("OPENROUTER_API_KEY")
@@ -93,8 +77,6 @@ async def api_process(
         return {"result": result.to_dict(orient='records'), "thread_id": thread_id}
     finally:
         os.unlink(temp_statement_path)
-        if cloud_vision_api_key:
-            os.unlink(temp_key_path)
 
 @app.post("/continue_processing")
 async def api_continue_processing(request: Request):
@@ -117,7 +99,7 @@ async def api_export_transactions(request: Request):
 with gr.Blocks() as demo:
     gr.Markdown("""
     # WizLedger - Monthly Statement Processor
-    Processes statements using Google Cloud Vision API and OpenRouter API.
+    Processes statements using OpenRouter API and MarkItDown.
     Extracts transactions from monthly bank statements and exports them to CSV.
     """)
     
@@ -136,12 +118,10 @@ with gr.Blocks() as demo:
                     csv = gr.File(label="CSV", interactive=False)
             with gr.Row():
                 with gr.Accordion("API Settings", open=True):
-                    gr.Markdown("Google Cloud Vision API")
-                    cloud_vision_api_key = gr.File(label="Select your Google Cloud Vision API key file")
                     gr.Markdown("OpenRouter API")
-                    openrouter_api_key = gr.Textbox(label="Enter your OpenRouter API key", type="password", value=os.getenv("OPENROUTER_API_KEY"))
-                    openrouter_model = gr.Textbox(label="Enter your OpenRouter model",value=os.getenv("OPENROUTER_MODEL"))
-                    openrouter_api_url = gr.Textbox(label="Enter your OpenRouter API URL",value=os.getenv("OPENROUTER_API_URL"))
+                    openrouter_api_key = gr.Textbox(label="Enter your OpenRouter API key", type="password", value=os.getenv("OPENROUTER_API_KEY") if os.getenv("OPENROUTER_API_KEY") else "")
+                    openrouter_model = gr.Textbox(label="Enter your OpenRouter model",value=os.getenv("OPENROUTER_MODEL") if os.getenv("OPENROUTER_MODEL") else "")
+                    openrouter_api_url = gr.Textbox(label="Enter your OpenRouter API URL",value=os.getenv("OPENROUTER_API_URL") if os.getenv("OPENROUTER_API_URL") else "")
         
         with gr.TabItem("API Usage"):
             gr.Markdown("""
@@ -191,7 +171,7 @@ with gr.Blocks() as demo:
         return result, thread_id
 
     process_button.click(process, 
-                         inputs=[statement, cloud_vision_api_key, openrouter_api_key, openrouter_model, openrouter_api_url], 
+                         inputs=[statement, openrouter_api_key, openrouter_model, openrouter_api_url], 
                          outputs=[output, thread_id])
     continue_button.click(continue_processing, 
                           inputs=[human_input, thread_id], 

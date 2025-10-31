@@ -40,8 +40,6 @@ Copy `.env.example` to `.env` and configure:
 - `OPENROUTER_API_KEY`: Required for LLM-based transaction extraction
 - `OPENROUTER_MODEL`: Model to use (default: anthropic/claude-4.5-sonnet)
 - `OPENROUTER_API_URL`: API endpoint (default: https://openrouter.ai/api/v1/chat/completions)
-- `GOOGLE_APPLICATION_CREDENTIALS`: Optional, for Google Cloud Vision OCR (legacy, not currently used)
-- `POPPLER_PATH`: Optional, for pdf2image if not in system PATH
 
 ## Architecture
 
@@ -104,9 +102,8 @@ ocr → extract → display_transactions → get_human_input → process_human_i
 ### Utilities
 
 **src/utils/ocr_utils.py**:
-- `perform_ocr_pdf()`: Current method using MarkItDown library
-- `perform_ocr_pdf2image()`: Legacy Google Cloud Vision method (not actively used)
-- MarkItDown is preferred for simplicity and no API quota limits
+- `perform_ocr_pdf()`: Performs OCR using MarkItDown library
+- MarkItDown is used for simplicity and no API quota limits
 
 **src/utils/transaction_utils.py**:
 - `extract_transactions()`: Uses LangChain + OpenRouter API to extract structured transactions
@@ -123,8 +120,7 @@ ocr → extract → display_transactions → get_human_input → process_human_i
 ## Important Implementation Details
 
 ### OCR Processing
-- Currently uses MarkItDown library (no API key required)
-- Google Cloud Vision code exists but is not the default path
+- Uses MarkItDown library (no API key required)
 - PDF files only - raises ValueError for non-PDF formats
 
 ### LLM Integration

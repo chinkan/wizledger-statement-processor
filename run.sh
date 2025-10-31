@@ -36,7 +36,7 @@ else
 fi
 
 echo "Setup complete."
-echo "Please make sure you have created Google Cloud Vision API key and OpenRouter API key and set them in the environment variables. (.env file)"
+echo "Please make sure you have created OpenRouter API key and set it in the environment variables. (.env file)"
 
 # Run src/ui.py
 if [ -f "src/ui.py" ]; then

@@ -18,7 +18,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # 設置環境變量
 # 請自行設置環境變量
-# ENV GOOGLE_APPLICATION_CREDENTIALS=/app/google_cloud_vision_key.json
 # ENV OPENROUTER_API_KEY=your_openrouter_api_key
 ENV OPENROUTER_MODEL=anthropic/claude-4.5-sonnet
 ENV OPENROUTER_API_URL=https://openrouter.ai/api/v1/chat/completions

@@ -28,8 +28,8 @@ https://huggingface.co/spaces/chinkanai/wizledger
 
 -   LangChain
 -   LangGraph
--   Google Cloud Vision API [Google Cloud Vision API](https://cloud.google.com/vision)
--   OpenRouter API (for access Claude 3.5 Sonnet) [OpenRouter API](https://openrouter.ai/)
+-   MarkItDown
+-   OpenRouter API (for access Claude 4.5 Sonnet) [OpenRouter API](https://openrouter.ai/)
 -   pdf2image (optional) [pdf2image](https://pdf2image.readthedocs.io/en/latest/)
 
 ## LangGraph
@@ -56,8 +56,6 @@ graph TD
 
 -   Python 3.10 or later
 -   OpenRouter API key (Get it [here](https://openrouter.ai/))
--   Enable Google Cloud Vision API (Get service account keys [here](https://cloud.google.com/iam/docs/keys-list-get))
--   Poppler (for pdf2image, optional)
 
 ## Installation
 
@@ -96,26 +94,21 @@ Processed data will be saved in the `output` folder.
 ```bash
 docker build -t wizledger .
 docker run -d -p 7860:7860 \
-    -e OPENROUTER_MODEL="anthropic/claude-3.5-sonnet" \
+    -e OPENROUTER_MODEL="anthropic/claude-4.5-sonnet" \
     -e OPENROUTER_API_URL="https://openrouter.ai/api/v1" \
     -e OPENROUTER_API_KEY="<replace with your openrouter api key>" \
-    -e GOOGLE_APPLICATION_CREDENTIALS="/app/secret/google-key.json" \
-    -v ./secret:/app/secret \
     wizledger
 ```
 
 ## Docker run from huggingface
 
-1. Create a folder named `secret` and put `google-key.json` in it.
-2. Run the following command:
+1. Run the following command:
 
 ```bash
 docker run -it -p 7860:7860 --platform=linux/amd64 \
-	-e OPENROUTER_MODEL="anthropic/claude-3.5-sonnet" \
+	-e OPENROUTER_MODEL="anthropic/claude-4.5-sonnet" \
 	-e OPENROUTER_API_URL="https://openrouter.ai/api/v1" \
 	-e OPENROUTER_API_KEY="<replace with your openrouter api key>" \
-	-e GOOGLE_APPLICATION_CREDENTIALS="/app/secret/google-key.json" \
-    -v ./secret:/app/secret \
 	registry.hf.space/chinkanai-wizledger:latest python src/ui.py
 ```
 

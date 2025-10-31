@@ -20,15 +20,15 @@ echo Checking for updates...
 git pull
 
 REM Check if virtual environment exists
-if not exist venv (
+if not exist .venv (
     echo Creating virtual environment...
-    python -m venv venv
+    python -m venv .venv
 ) else (
     echo Virtual environment already exists.
 )
 
 REM Activate virtual environment
-call venv\Scripts\activate.bat
+call .venv\Scripts\activate.bat
 
 REM Check if requirements.txt exists
 if exist requirements.txt (
@@ -39,7 +39,7 @@ if exist requirements.txt (
 )
 
 echo "Setup complete."
-echo "Please make sure you have created Google Cloud Vision API key and OpenRouter API key and set them in the environment variables. (.env file)"
+echo "Please make sure you have created OpenRouter API key and set it in the environment variables. (.env file)"
 
 REM Run src/ui.py
 if exist src\ui.py (
